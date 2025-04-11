@@ -1,6 +1,7 @@
 #include <iostream>
 #include "login_registration.h"
 #include "pharmacy.h"
+#include "student_faculty.h"
 
 using namespace std;
 
@@ -61,19 +62,31 @@ int main() {
                 cout << "Invalid choice. Try again.\n";
             }
         } else {
-            pharmacyMenu(currentUser);
+            cout << "\n========== Logged In Menu ==========" << endl;
+            cout << "1. Student/Faculty Menu" << endl;
+            cout << "2. Staff Menu" << endl;
+            cout << "3. Pharmacy" << endl;
+            cout << "4. Logout" << endl;
+            cout << "5. Exit Program" << endl;
+            cout << "=====================================\n";
 
-            cout << "\n========== Post Pharmacy Options ==========\n";
-            cout << "1. Logout\n";
-            cout << "2. Exit Program\n";
-            cout << "===========================================\n";
             int opt = getValidatedIntMain("Enter choice: ");
+
             if (opt == 1) {
+                studentFacultyMenu(currentUser);
+            } else if (opt == 2) {
+                cout << "\n[Staff Menu Placeholder]\n";
+                // Add staffMenu(currentUser); later if needed
+            } else if (opt == 3) {
+                pharmacyMenu(currentUser);
+            } else if (opt == 4) {
                 loggedIn = false;
                 currentUser = "";
-            } else {
+            } else if (opt == 5) {
                 cout << "Exiting...\n";
                 break;
+            } else {
+                cout << "Invalid option. Try again.\n";
             }
         }
     }
@@ -81,6 +94,5 @@ int main() {
     return 0;
 }
 
-
-//g++ login_registration.cpp main.cpp pharmacy.cpp -o main.exe
+//g++ main.cpp login_registration.cpp pharmacy.cpp student_faculty.cpp -o main.exe
 //.\main.exe
