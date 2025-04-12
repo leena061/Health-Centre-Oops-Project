@@ -2,6 +2,7 @@
 #include "login_registration.h"
 #include "pharmacy.h"
 #include "student_faculty.h"
+#include "staff.h"
 
 using namespace std;
 
@@ -75,8 +76,7 @@ int main() {
             if (opt == 1) {
                 studentFacultyMenu(currentUser);
             } else if (opt == 2) {
-                cout << "\n[Staff Menu Placeholder]\n";
-                // Add staffMenu(currentUser); later if needed
+                staffMenu(); 
             } else if (opt == 3) {
                 pharmacyMenu(currentUser);
             } else if (opt == 4) {
@@ -94,5 +94,5 @@ int main() {
     return 0;
 }
 
-//g++ main.cpp login_registration.cpp pharmacy.cpp student_faculty.cpp -o main.exe
+//g++ main.cpp login_registration.cpp pharmacy.cpp staff.cpp student_faculty.cpp -o main.exe
 //.\main.exe

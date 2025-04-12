@@ -1,36 +1,50 @@
-#include "student_faculty.h"
 #include <iostream>
 #include <fstream>
+#include "student_faculty.h"
 #include <vector>
 #include <sstream>
-#include <limits>
 #include <iomanip>
+#include <limits>  // Include this header for numeric_limits
 using namespace std;
 
-void viewDoctorSchedule() {
-    cout << "\n--- Doctor Schedule ---\n";
-    cout << left << setw(15) << "Doctor" << setw(20) << "Days" << setw(15) << "Time" << "\n";
-    cout << string(50, '-') << "\n";
-    cout << left << setw(15) << "Dr. A" << setw(20) << "Mon/Wed/Fri" << setw(15) << "10am - 1pm" << "\n";
-    cout << left << setw(15) << "Dr. B" << setw(20) << "Tue/Thu/Sat" << setw(15) << "2pm - 5pm" << "\n";
-}
-
+// Function to book an appointment with a selected doctor
 void bookAppointment(const string& username) {
-    string date, time, doctor;
+    string date, time, doctor, specialty;
+    
     cout << "\n--- Book Appointment ---\n";
+    cout << "Select Specialty:\n";
+    cout << "1. General Medicine\n";
+    cout << "2. Gynecologist\n";
+    cout << "3. Dermatologist\n";
+    cout << "4. Lab Pathologist\n";
+    cout << "Enter choice (1-4): ";
+    int choice;
+    cin >> choice;
+    cin.ignore();  // To clear the newline character left by `cin`
+    
+    switch (choice) {
+        case 1: specialty = "General Medicine"; doctor = "Dr. A"; break;
+        case 2: specialty = "Gynecologist"; doctor = "Dr. B"; break;
+        case 3: specialty = "Dermatologist"; doctor = "Dr. C"; break;
+        case 4: specialty = "Lab Pathologist"; doctor = "Dr. D"; break;
+        default: 
+            cout << "Invalid choice. Please try again.\n";
+            return;
+    }
+    
     cout << "Enter Date (DD-MM-YYYY): ";
     getline(cin, date);
     cout << "Enter Time (e.g. 10:30 AM): ";
     getline(cin, time);
-    cout << "Enter Doctor Name: ";
-    getline(cin, doctor);
 
+    // Write appointment details to a file
     ofstream out("appointments.txt", ios::app);
-    out << username << "," << date << "," << time << "," << doctor << "\n";
+    out << username << "," << date << "," << time << "," << doctor << "," << specialty << "\n";
     out.close();
-    cout << "Appointment booked!\n";
+    cout << "Appointment booked with " << doctor << " in " << specialty << "!\n";
 }
 
+// Function to view the appointments of the patient
 void viewAppointments(const string& username) {
     cout << "\n--- Your Appointments ---\n";
     ifstream in("appointments.txt");
@@ -38,19 +52,21 @@ void viewAppointments(const string& username) {
     bool found = false;
     int index = 1;
 
-    cout << left << setw(5) << "No." << setw(15) << "Date" << setw(15) << "Time" << setw(15) << "Doctor" << endl;
-    cout << string(50, '-') << endl;
+    cout << left << setw(5) << "No." << setw(15) << "Date" << setw(15) << "Time" << setw(15) << "Doctor" << setw(20) << "Specialty" << endl;
+    cout << string(70, '-') << endl;
 
+    // Read appointments and display them
     while (getline(in, line)) {
         stringstream ss(line);
-        string user, date, time, doctor;
+        string user, date, time, doctor, specialty;
         getline(ss, user, ',');
         getline(ss, date, ',');
         getline(ss, time, ',');
-        getline(ss, doctor);
+        getline(ss, doctor, ',');
+        getline(ss, specialty);
 
         if (user == username) {
-            cout << left << setw(5) << index++ << setw(15) << date << setw(15) << time << setw(15) << doctor << endl;
+            cout << left << setw(5) << index++ << setw(15) << date << setw(15) << time << setw(15) << doctor << setw(20) << specialty << endl;
             found = true;
         }
     }
@@ -58,6 +74,7 @@ void viewAppointments(const string& username) {
     in.close();
 }
 
+// Function to check medical records
 void checkMedicalRecords(const string& username) {
     cout << "\n--- Medical Records ---\n";
     ifstream in(username + "_records.txt");
@@ -72,6 +89,7 @@ void checkMedicalRecords(const string& username) {
     in.close();
 }
 
+// Function to show emergency contacts
 void showEmergencyContacts() {
     cout << "\n--- Emergency Contacts ---\n";
     cout << left << setw(20) << "Contact" << setw(15) << "Phone Number" << "\n";
@@ -80,6 +98,7 @@ void showEmergencyContacts() {
     cout << left << setw(20) << "Ambulance" << "108" << "\n";
 }
 
+// Function to manage notes (add, view, delete)
 void noteMenu(const string& username) {
     while (true) {
         cout << "\n====== Notes Menu ======\n";
@@ -91,7 +110,7 @@ void noteMenu(const string& username) {
         cout << "Enter choice: ";
         int ch;
         cin >> ch;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.ignore(numeric_limits<std::streamsize>::max(), '\n');  // Corrected
 
         if (ch == 1) {
             string note;
@@ -138,7 +157,7 @@ void noteMenu(const string& username) {
             cout << "Enter note number to delete: ";
             int num;
             cin >> num;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.ignore(numeric_limits<std::streamsize>::max(), '\n');  // Corrected
 
             if (num > 0 && num <= static_cast<int>(notes.size())) {
                 notes.erase(notes.begin() + num - 1);
@@ -158,53 +177,124 @@ void noteMenu(const string& username) {
         }
     }
 }
+void viewUpcomingAppointments(const string& username) {
+    cout << "\n--- Upcoming Appointments ---\n";
+    ifstream in("appointments.txt");
+    string line;
+    bool found = false;
 
+    cout << left << setw(5) << "No." << setw(15) << "Date" << setw(15) << "Time" << setw(15) << "Doctor" << setw(20) << "Specialty" << endl;
+    cout << string(70, '-') << endl;
+
+    while (getline(in, line)) {
+        stringstream ss(line);
+        string user, date, time, doctor, specialty;
+        getline(ss, user, ',');
+        getline(ss, date, ',');
+        getline(ss, time, ',');
+        getline(ss, doctor, ',');
+        getline(ss, specialty);
+
+        if (user == username) {
+            // Here you can add logic to check if the date is in the future
+            cout << left << setw(5) << "1" << setw(15) << date << setw(15) << time << setw(15) << doctor << setw(20) << specialty << endl;
+            found = true;
+        }
+    }
+    if (!found) cout << "No upcoming appointments.\n";
+    in.close();
+}
+
+void viewPastAppointments(const string& username) {
+    cout << "\n--- Past Appointments ---\n";
+    ifstream in("appointments.txt");
+    string line;
+    bool found = false;
+
+    cout << left << setw(5) << "No." << setw(15) << "Date" << setw(15) << "Time" << setw(15) << "Doctor" << setw(20) << "Specialty" << endl;
+    cout << string(70, '-') << endl;
+
+    while (getline(in, line)) {
+        stringstream ss(line);
+        string user, date, time, doctor, specialty;
+        getline(ss, user, ',');
+        getline(ss, date, ',');
+        getline(ss, time, ',');
+        getline(ss, doctor, ',');
+        getline(ss, specialty);
+
+        if (user == username) {
+            // Here you can add logic to check if the date is in the past
+            cout << left << setw(5) << "1" << setw(15) << date << setw(15) << time << setw(15) << doctor << setw(20) << specialty << endl;
+            found = true;
+        }
+    }
+    if (!found) cout << "No past appointments.\n";
+    in.close();
+}
+
+// Function to manage appointments
 void appointmentMenu(const string& username) {
     while (true) {
-        cout << "\n====== Appointment Menu ======\n";
-        cout << "1. Book Appointment\n";
-        cout << "2. View Appointments\n";
-        cout << "3. Cancel (Coming Soon)\n";
-        cout << "4. Back\n";
-        cout << "================================\n";
+        cout << "\n========= Appointments Menu =========\n";
+        cout << left << setw(3) << "1." << "Book Appointment" << "\n";
+        cout << left << setw(3) << "2." << "View Appointments" << "\n";
+        cout << left << setw(3) << "3." << "View Upcoming Appointments" << "\n";
+        cout << left << setw(3) << "4." << "View Past Appointments" << "\n";
+        cout << left << setw(3) << "5." << "Back to Health Centre Menu" << "\n";
+        cout << "=====================================\n";
         cout << "Enter choice: ";
-        int ch;
-        cin >> ch;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        int choice;
+        cin >> choice;
+        cin.ignore(numeric_limits<std::streamsize>::max(), '\n');  // Corrected
 
-        switch (ch) {
+        switch (choice) {
             case 1: bookAppointment(username); break;
             case 2: viewAppointments(username); break;
-            case 3: cout << "Cancel feature coming soon...\n"; break;
-            case 4: return;
-            default: cout << "Invalid choice.\n"; break;
+            case 3: viewUpcomingAppointments(username); break;
+            case 4: viewPastAppointments(username); break;
+            case 5: return;
+            default: cout << "Invalid choice!\n";
         }
     }
 }
-
 void studentFacultyMenu(const string& username) {
     while (true) {
-        cout << "\n========= Health Centre Menu =========\n";
-        cout << left << setw(3) << "1." << "View Doctor Schedule" << "\n";
-        cout << left << setw(3) << "2." << "Appointments" << "\n";
-        cout << left << setw(3) << "3." << "Check Medical Records" << "\n";
-        cout << left << setw(3) << "4." << "Emergency Contacts" << "\n";
-        cout << left << setw(3) << "5." << "Notes" << "\n";
-        cout << left << setw(3) << "6." << "Back to Main Menu" << "\n";
-        cout << "=======================================\n";
+        cout << "\n======= Health Centre Menu =======\n";
+        cout << "1. Appointment Section\n";
+        cout << "2. Medical Records\n";
+        cout << "3. Emergency Contacts\n";
+        cout << "4. Notes\n";
+        cout << "5. Back to Main Menu\n";
+        cout << "==================================\n";
         cout << "Enter choice: ";
+        
         int choice;
         cin >> choice;
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: viewDoctorSchedule(); break;
-            case 2: appointmentMenu(username); break;
-            case 3: checkMedicalRecords(username); break;
-            case 4: showEmergencyContacts(); break;
-            case 5: noteMenu(username); break;
-            case 6: return;
-            default: cout << "Invalid choice!\n";
+            case 1:
+                appointmentMenu(username); // Has "Back to Health Centre Menu" internally
+                break;
+            case 2:
+                checkMedicalRecords(username);
+                break;
+            case 3:
+                showEmergencyContacts();
+                break;
+            case 4:
+                noteMenu(username); // Also includes "Back"
+                break;
+            case 5:
+                cout << "Logging out...\n";
+                return; // Goes back to main/login screen
+            default:
+                cout << "Invalid choice. Try again.\n";
         }
-    }
+    }  
 }
+
+   
+
+
