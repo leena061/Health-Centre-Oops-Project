@@ -1,3 +1,5 @@
 Student/Faculty|Dayal Jaiswal|9234678901|dayal123@gmail.com|26|Male|dayal123|Dayal22
 Student/Faculty|isjs|0303|sks|kakas|ksks|sjs|ksks
 Student/Faculty|draksha|102093933|draksha@gmail.com|19|female|draksha|cdraksha
+Student/Faculty|Leena|9234516072|mahasethleena@gmail.com|20|F|leena123|Leena22
+HealthCentreStaff|Draksha|9867543421|draksha@gmail.com|56|F|draksha123|Draksha22

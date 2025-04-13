@@ -3,6 +3,8 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include "appointment_data.h"
+
 
 // Staff class function definitions
 Staff::Staff(string name, string role, string schedule, bool isAvailable)
@@ -23,9 +25,11 @@ void Staff::display() {
 }
 
 // ================== Management Functions ===================
-
+// Function prototypes
+void editAppointment();
+void writeMedicalReport();
 void DoctorSchedule() {
-    cout << "\n--- Doctor Schedules ---\n";
+    cout << "\n--- Doctor Section ---\n";
     vector<Staff> doctors = {
         Staff("Dr. A", "General Medicine", "Mon/Wed/Fri 10am - 1pm", true),
         Staff("Dr. B", "Gynecologist", "Tue/Thu 2pm - 5pm", true),
@@ -35,11 +39,13 @@ void DoctorSchedule() {
 
     int choice;
     while (true) {
-        cout << "\n1. View Doctor Schedules\n";
+        cout << "\n1. View Doctor Schedule\n";
         cout << "2. Update Doctor Schedule\n";
         cout << "3. Toggle Doctor Availability\n";
-        cout << "4. View Appointments Booked\n"; // New option
-        cout << "5. Back\n";
+        cout << "4. View Appointments Booked\n";
+        cout << "5. Edit Appointment\n";
+        cout << "6. Write Medical Reports\n";
+        cout << "7. Back\n";
         cout << "Enter choice: ";
         cin >> choice;
         cin.ignore();
@@ -83,12 +89,74 @@ void DoctorSchedule() {
         } else if (choice == 4) {
             viewDoctorAppointments();
         } else if (choice == 5) {
+            editAppointment();
+        } else if (choice == 6) {
+            writeMedicalReport();
+        } else if (choice == 7) {
             break;
         } else {
             cout << "Invalid choice. Try again.\n";
         }
     }
 }
+
+void editAppointment() {
+    string appointmentId;
+    cout << "Enter appointment ID to edit: ";
+    getline(cin, appointmentId);
+
+    ifstream file("appointments.txt");
+    if (!file) {
+        cout << "Error opening appointments file.\n";
+        return;
+    }
+
+    string line;
+    bool found = false;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string id, patientId, doctorId, date, time;
+        getline(ss, id, ',');
+        getline(ss, patientId, ',');
+        getline(ss, doctorId, ',');
+        getline(ss, date, ',');
+        getline(ss, time, ',');
+
+        if (id == appointmentId) {
+            cout << "Enter new date: ";
+            getline(cin, date);
+            cout << "Enter new time: ";
+            getline(cin, time);
+
+            ofstream outFile("appointments.txt", ios::trunc);
+            outFile << id << "," << patientId << "," << doctorId << "," << date << "," << time << endl;
+            outFile.close();
+
+            cout << "Appointment edited successfully.\n";
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) cout << "Appointment not found.\n";
+}
+
+void writeMedicalReport() {
+    string patientId;
+    cout << "Enter patient ID to write medical report: ";
+    getline(cin, patientId);
+
+    string report;
+    cout << "Enter medical report: ";
+    getline(cin, report);
+
+    ofstream outFile("medical_reports.txt", ios::app);
+    outFile << patientId << "," << report << endl;
+    outFile.close();
+
+    cout << "Medical report written successfully.\n";
+}  
+
 // Function to manage pathologist schedules
 void PathologistSchedule() {
     cout << "\n---  Pathologist Schedules ---\n";
@@ -226,7 +294,7 @@ void NurseSchedule() {
         }
     }
 }
-void manageMedicalRecords() {
+/*void manageMedicalRecords() {
     int choice;
     string username, record;
     
@@ -266,7 +334,7 @@ void manageMedicalRecords() {
     } else {
         cout << "Invalid choice.\n";
     }
-}
+}*/
 void manageLeaveRequests() {
     int choice;
     cout << "\n--- Manage Leave Requests ---\n";
@@ -460,7 +528,6 @@ void viewDoctorAppointments() {
     file.close();
 }
 
-
 void staffMenu() {
     int roleChoice;
     while (true) {
@@ -468,11 +535,11 @@ void staffMenu() {
         cout << "1.  Doctor Schedules\n";
         cout << "2.  Pathologist Schedules\n";
         cout << "3.  Nurse Schedules\n";
-        cout << "4. Manage Medical Records\n";
-        cout << "5. Manage Leave Requests\n";
-        cout << "6. Manage Emergency Contacts\n";
-        cout << "7. Manage Patient Care Notes\n";
-        cout << "8. Back\n";
+       // cout << "4. Manage Medical Records\n";
+        cout << "4. Manage Leave Requests\n";
+        cout << "5. Manage Emergency Contacts\n";
+        cout << "6. Manage Patient Care Notes\n";
+        cout << "7. Back\n";
         cout << "Enter choice: ";
         cin >> roleChoice;
         cin.ignore();
@@ -481,11 +548,11 @@ void staffMenu() {
             case 1: DoctorSchedule(); break;
             case 2: PathologistSchedule(); break;
             case 3: NurseSchedule(); break;
-            case 4: manageMedicalRecords(); break;
-            case 5: manageLeaveRequests(); break;
-            case 6: manageEmergencyContacts(); break;
-            case 7: managePatientCareNotes(); break;
-            case 8: return;
+          //  case 4: manageMedicalRecords(); break;
+            case 4: manageLeaveRequests(); break;
+            case 5: manageEmergencyContacts(); break;
+            case 6: managePatientCareNotes(); break;
+            case 7: return;
             default: cout << "Invalid choice. Try again.\n";
         }
     }
