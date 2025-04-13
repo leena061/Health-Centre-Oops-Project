@@ -94,6 +94,7 @@ bool authenticateStaff() {
     return staffPassword == "admin123";
 }
 
+
 int getValidatedInt(const string& prompt) {
     int value;
     while (true) {
@@ -126,7 +127,7 @@ double getValidatedDouble(const string& prompt) {
     }
 }
 
-void pharmacyMenu(const string& username) {
+void pharmacyMenu(const string& username, const string& role) {
     Pharmacy pharmacy;
     int choice;
     do {
@@ -135,7 +136,12 @@ void pharmacyMenu(const string& username) {
         cout << "2. Order Medicine" << endl;
         cout << "3. Upload Prescription" << endl;
         cout << "4. Display Inventory" << endl;
-        cout << "5. Update Inventory (Staff Only)" << endl;
+        
+        // Show "Update Inventory" option only if the user is a staff member
+        if (role == "HealthCentreStaff") {
+            cout << "5. Update Inventory (Staff Only)" << endl;
+        }
+        
         cout << "0. Exit" << endl;
         cout << "======================================" << endl;
 
@@ -164,14 +170,20 @@ void pharmacyMenu(const string& username) {
                 pharmacy.displayInventory();
                 break;
             case 5:
-                if (authenticateStaff()) {
-                    cout << "\nEnter medicine name: ";
-                    getline(cin, medicine);
-                    quantity = getValidatedInt("Enter new quantity: ");
-                    price = getValidatedDouble("Enter new price: ");
-                    pharmacy.updateInventory(medicine, quantity, price);
+                // Check if the user is staff
+                if (role == "HealthCentreStaff") {
+                    // Authenticate staff using a password
+                    if (authenticateStaff()) {
+                        cout << "\nEnter medicine name: ";
+                        getline(cin, medicine);
+                        quantity = getValidatedInt("Enter new quantity: ");
+                        price = getValidatedDouble("Enter new price: ");
+                        pharmacy.updateInventory(medicine, quantity, price);
+                    } else {
+                        cout << "\nIncorrect password. Access denied.\n";
+                    }
                 } else {
-                    cout << "\nIncorrect password. Access denied.\n";
+                    cout << "\nAccess denied. You must be a staff member to update the inventory.\n";
                 }
                 break;
             case 0:

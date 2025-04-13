@@ -18,10 +18,9 @@ public:
 };
 
 bool userExists(const string& username);
-bool verifyLogin(string username, string password);
+bool verifyLogin(const string& username, const string& password, string& role);
 void registerUser();
 void forgotPassword();
 string maskPassword();
 
 #endif
-

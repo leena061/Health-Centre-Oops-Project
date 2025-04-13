@@ -532,9 +532,9 @@ void staffMenu() {
     int roleChoice;
     while (true) {
         cout << "\n=== Staff Menu ===\n";
-        cout << "1.  Doctor Schedules\n";
-        cout << "2.  Pathologist Schedules\n";
-        cout << "3.  Nurse Schedules\n";
+        cout << "1. Doctor Section\n";
+        cout << "2. Pathologist Schedules\n";
+        cout << "3. Nurse Schedules\n";
        // cout << "4. Manage Medical Records\n";
         cout << "4. Manage Leave Requests\n";
         cout << "5. Manage Emergency Contacts\n";

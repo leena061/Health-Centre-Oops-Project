@@ -28,7 +28,7 @@ public:
 // Prescription and Staff Authentication
 void uploadPrescription(const string& username);
 bool authenticateStaff();
-void pharmacyMenu(const string& username);
+void pharmacyMenu(const string& username, const string& role);
 
 // Input validation helper
 int getValidatedInt(const string& prompt);

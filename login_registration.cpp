@@ -27,16 +27,19 @@ bool userExists(const string& username) {
     return false;
 }
 
-bool verifyLogin(string username, string password) {
+bool verifyLogin(const string& username, const string& password, string& role) {
     ifstream file("users.txt");
     string line;
+    int matchCount = 0;
+    string lastMatchPhone;
+
     while (getline(file, line)) {
         stringstream ss(line);
-        string role, name, phone, email, age, gender, storedUsername, storedPassword;
+        string storedRole, name, storedPhone, email, age, gender, storedUsername, storedPassword;
 
-        getline(ss, role, '|');
+        getline(ss, storedRole, '|');
         getline(ss, name, '|');
-        getline(ss, phone, '|');
+        getline(ss, storedPhone, '|');
         getline(ss, email, '|');
         getline(ss, age, '|');
         getline(ss, gender, '|');
@@ -44,10 +47,14 @@ bool verifyLogin(string username, string password) {
         getline(ss, storedPassword, '|');
 
         if (storedUsername == username && storedPassword == password) {
-            return true;
+            matchCount++;
+            role = storedRole;
+            lastMatchPhone = storedPhone;
         }
     }
-    return false;
+
+    // If exactly one match, return true (ensures uniqueness by phone)
+    return matchCount == 1;
 }
 
 string maskPassword() {
