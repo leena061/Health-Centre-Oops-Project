@@ -404,6 +404,7 @@ void manageLeaveRequests() {
     cout << "1. Apply for Leave\n";
     cout << "2. View Leave Requests\n";
     cout << "3. Approve/Reject Request\n";
+    cout << "4. Back\n";
     cout << "Enter choice: ";
     cin >> choice;
 
@@ -507,7 +508,7 @@ void manageLeaveRequests() {
 void manageEmergencyContacts() {
     int choice;
     cout << "\n--- Manage Emergency Contacts ---\n";
-    cout << "1. Add Contact\n2. View Contacts\n3. Remove Contact\nEnter choice: ";
+    cout << "1. Add Contact\n2. View Contacts\n3. Remove Contact\n4.Back\nEnter choice: ";
     cin >> choice;
 
     if (cin.fail()) {
@@ -617,7 +618,7 @@ void manageEmergencyContacts() {
 void managePatientCareNotes() {
     int choice;
     cout << "\n--- Manage Patient Care Notes ---\n";
-    cout << "1. Add Note\n2. View Notes\nEnter choice: ";
+    cout << "1. Add Note\n2. View Notes\n3.Back\nEnter choice: ";
     cin >> choice;
 
     if (cin.fail()) {
