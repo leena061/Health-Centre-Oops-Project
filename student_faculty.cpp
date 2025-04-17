@@ -33,17 +33,34 @@ void bookAppointment(const string& username) {
             return;
     }
     
+    // Get date input and validate
     cout << "Enter Date (DD-MM-YYYY): ";
     getline(cin, date);
+    if (date.empty()) {
+        cout << "Invalid input. Date cannot be empty.\n";
+        return;
+    }
+    
+    // Get time input and validate
     cout << "Enter Time (e.g. 10:30 AM): ";
     getline(cin, time);
+    if (time.empty()) {
+        cout << "Invalid input. Time cannot be empty.\n";
+        return;
+    }
 
     // Write appointment details to a file
     ofstream out("appointments.txt", ios::app);
+    if (!out) {
+        cout << "Error opening file to save appointment.\n";
+        return;
+    }
+
     out << username << "," << date << "," << time << "," << doctor << "," << specialty << "\n";
     out.close();
     cout << "Appointment booked with " << doctor << " in " << specialty << "!\n";
 }
+
 
 void viewAppointments(const string& username) {
     cout << "\n--- View Appointments Booked ---\n";

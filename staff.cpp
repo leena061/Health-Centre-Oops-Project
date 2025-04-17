@@ -3,6 +3,8 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <limits>
+#include <algorithm>
 #include "appointment_data.h"
 
 
@@ -48,7 +50,7 @@ void DoctorSchedule() {
         cout << "7. Back\n";
         cout << "Enter choice: ";
         cin >> choice;
-        cin.ignore();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         if (choice == 1) {
             cout << "\n--- Doctor Schedules ---\n";
@@ -56,12 +58,22 @@ void DoctorSchedule() {
                  << setw(20) << "Schedule" << setw(15) << "Availability" << endl;
             cout << string(70, '-') << endl;
             for (auto& doc : doctors) doc.display();
+
         } else if (choice == 2) {
             string doctorName, newSchedule;
             cout << "Enter doctor's name to update schedule: ";
             getline(cin, doctorName);
+            if (doctorName.empty()) {
+                cout << "Invalid input. Doctor name cannot be empty.\n";
+                continue;
+            }
             cout << "Enter new schedule: ";
             getline(cin, newSchedule);
+            if (newSchedule.empty()) {
+                cout << "Invalid input. Schedule cannot be empty.\n";
+                continue;
+            }
+
             bool found = false;
             for (auto& doc : doctors) {
                 if (doc.name == doctorName) {
@@ -72,10 +84,15 @@ void DoctorSchedule() {
                 }
             }
             if (!found) cout << "Doctor not found.\n";
+
         } else if (choice == 3) {
             string doctorName;
             cout << "Enter doctor's name to toggle availability: ";
             getline(cin, doctorName);
+            if (doctorName.empty()) {
+                cout << "Invalid input. Doctor name cannot be empty.\n";
+                continue;
+            }
             bool found = false;
             for (auto& doc : doctors) {
                 if (doc.name == doctorName) {
@@ -86,14 +103,19 @@ void DoctorSchedule() {
                 }
             }
             if (!found) cout << "Doctor not found.\n";
+
         } else if (choice == 4) {
             viewDoctorAppointments();
+
         } else if (choice == 5) {
             editAppointment();
+
         } else if (choice == 6) {
             writeMedicalReport();
+
         } else if (choice == 7) {
             break;
+
         } else {
             cout << "Invalid choice. Try again.\n";
         }
@@ -105,14 +127,21 @@ void editAppointment() {
     cout << "Enter appointment ID to edit: ";
     getline(cin, appointmentId);
 
+    if (appointmentId.empty()) {
+        cout << "Invalid input. Appointment ID cannot be empty.\n";
+        return;
+    }
+
     ifstream file("appointments.txt");
     if (!file) {
         cout << "Error opening appointments file.\n";
         return;
     }
 
+    vector<string> updatedAppointments;
     string line;
     bool found = false;
+
     while (getline(file, line)) {
         stringstream ss(line);
         string id, patientId, doctorId, date, time;
@@ -125,20 +154,38 @@ void editAppointment() {
         if (id == appointmentId) {
             cout << "Enter new date: ";
             getline(cin, date);
+            if (date.empty()) {
+                cout << "Invalid input. Date cannot be empty.\n";
+                return;
+            }
+
             cout << "Enter new time: ";
             getline(cin, time);
+            if (time.empty()) {
+                cout << "Invalid input. Time cannot be empty.\n";
+                return;
+            }
 
-            ofstream outFile("appointments.txt", ios::trunc);
-            outFile << id << "," << patientId << "," << doctorId << "," << date << "," << time << endl;
-            outFile.close();
-
-            cout << "Appointment edited successfully.\n";
+            updatedAppointments.push_back(id + "," + patientId + "," + doctorId + "," + date + "," + time);
             found = true;
-            break;
+        } else {
+            updatedAppointments.push_back(line);
         }
     }
+    file.close();
 
-    if (!found) cout << "Appointment not found.\n";
+    if (!found) {
+        cout << "Appointment not found.\n";
+        return;
+    }
+
+    ofstream outFile("appointments.txt", ios::trunc);
+    for (const string& appt : updatedAppointments) {
+        outFile << appt << endl;
+    }
+    outFile.close();
+
+    cout << "Appointment edited successfully.\n";
 }
 
 void writeMedicalReport() {
@@ -146,16 +193,32 @@ void writeMedicalReport() {
     cout << "Enter patient ID to write medical report: ";
     getline(cin, patientId);
 
+    if (patientId.empty()) {
+        cout << "Invalid input. Patient ID cannot be empty.\n";
+        return;
+    }
+
     string report;
     cout << "Enter medical report: ";
     getline(cin, report);
 
+    if (report.empty()) {
+        cout << "Invalid input. Medical report cannot be empty.\n";
+        return;
+    }
+
     ofstream outFile("medical_reports.txt", ios::app);
+    if (!outFile) {
+        cout << "Error: Unable to open file for writing.\n";
+        return;
+    }
+
     outFile << patientId << "," << report << endl;
     outFile.close();
 
     cout << "Medical report written successfully.\n";
-}  
+}
+
 
 // Function to manage pathologist schedules
 void PathologistSchedule() {
@@ -343,18 +406,45 @@ void manageLeaveRequests() {
     cout << "3. Approve/Reject Request\n";
     cout << "Enter choice: ";
     cin >> choice;
-    cin.ignore();
+
+    // Handle invalid or failed input
+    if (cin.fail()) {
+        cin.clear(); // Clear error state
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear input buffer
+        cout << "Invalid input.\n";
+        return;
+    }
+    cin.ignore(); // Ignore newline
 
     if (choice == 1) {
         string name, role, reason, date;
         cout << "Enter your name: ";
         getline(cin, name);
+        if (name.empty()) {
+            cout << "Invalid input. Name cannot be empty.\n";
+            return;
+        }
+
         cout << "Enter your role (Doctor/Pathologist/Nurse): ";
         getline(cin, role);
+        if (role.empty()) {
+            cout << "Invalid input. Role cannot be empty.\n";
+            return;
+        }
+
         cout << "Enter reason for leave: ";
         getline(cin, reason);
+        if (reason.empty()) {
+            cout << "Invalid input. Reason cannot be empty.\n";
+            return;
+        }
+
         cout << "Enter leave date (DD-MM-YYYY): ";
         getline(cin, date);
+        if (date.empty()) {
+            cout << "Invalid input. Date cannot be empty.\n";
+            return;
+        }
 
         ofstream out("leave_requests.txt", ios::app);
         out << name << "," << role << "," << reason << "," << date << endl;
@@ -364,6 +454,11 @@ void manageLeaveRequests() {
     } 
     else if (choice == 2) {
         ifstream file("leave_requests.txt");
+        if (!file) {
+            cout << "No leave requests found.\n";
+            return;
+        }
+
         string line;
         cout << "\nName\t\tRole\t\tReason\t\tDate\n";
         cout << "------------------------------------------------------------\n";
@@ -386,8 +481,17 @@ void manageLeaveRequests() {
         string userToProcess, decision;
         cout << "Enter name of staff to approve/reject: ";
         getline(cin, userToProcess);
+        if (userToProcess.empty()) {
+            cout << "Invalid input. Name cannot be empty.\n";
+            return;
+        }
+
         cout << "Enter decision (Approve/Reject): ";
         getline(cin, decision);
+        if (decision.empty()) {
+            cout << "Invalid input. Decision cannot be empty.\n";
+            return;
+        }
 
         ofstream log("leave_decisions.txt", ios::app);
         log << userToProcess << "," << decision << endl;
@@ -405,20 +509,55 @@ void manageEmergencyContacts() {
     cout << "\n--- Manage Emergency Contacts ---\n";
     cout << "1. Add Contact\n2. View Contacts\n3. Remove Contact\nEnter choice: ";
     cin >> choice;
-    cin.ignore();
+
+    if (cin.fail()) {
+        cin.clear(); // clear error flag
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard bad input
+        cout << "Invalid input. Please enter a valid number.\n";
+        return;
+    }
+
+    cin.ignore(); // ignore leftover newline from cin
 
     if (choice == 1) {
         string user, contact;
         cout << "Enter username: ";
         getline(cin, user);
+        if (user.empty()) {
+            cout << "Invalid input. Username cannot be empty.\n";
+            return;
+        }
+
         cout << "Enter emergency contact (name and number): ";
         getline(cin, contact);
+        if (contact.empty()) {
+            cout << "Invalid input. Contact cannot be empty.\n";
+            return;
+        }
+
+        // Check if the contact number is exactly 10 digits
+        if (contact.length() != 10 || !all_of(contact.begin(), contact.end(), ::isdigit)) {
+            cout << "Invalid input. Contact must be a 10-digit number.\n";
+            return;
+        }
+
         ofstream file("emergency_contacts.txt", ios::app);
+        if (!file) {
+            cout << "Error: Cannot open file to save contact.\n";
+            return;
+        }
+
         file << user << "," << contact << endl;
         file.close();
         cout << "Contact added.\n";
+
     } else if (choice == 2) {
         ifstream file("emergency_contacts.txt");
+        if (!file) {
+            cout << "No emergency contacts found.\n";
+            return;
+        }
+
         string line;
         cout << "\nUsername\t\tContact\n";
         cout << "-----------------------------------\n";
@@ -427,16 +566,28 @@ void manageEmergencyContacts() {
             string user, contact;
             getline(ss, user, ',');
             getline(ss, contact, ',');
+
             cout << user << "\t\t" << contact << endl;
         }
         file.close();
+
     } else if (choice == 3) {
         string username;
         cout << "Enter username to remove contact: ";
         getline(cin, username);
 
+        if (username.empty()) {
+            cout << "Invalid input. Username cannot be empty.\n";
+            return;
+        }
+
         ifstream file("emergency_contacts.txt");
         ofstream temp("temp.txt");
+        if (!file || !temp) {
+            cout << "Error: Unable to access contact files.\n";
+            return;
+        }
+
         string line;
         bool found = false;
 
@@ -457,30 +608,60 @@ void manageEmergencyContacts() {
             cout << "Contact removed.\n";
         else
             cout << "Username not found.\n";
+
     } else {
         cout << "Invalid option.\n";
     }
 }
+
 void managePatientCareNotes() {
     int choice;
     cout << "\n--- Manage Patient Care Notes ---\n";
     cout << "1. Add Note\n2. View Notes\nEnter choice: ";
     cin >> choice;
-    cin.ignore();
+
+    if (cin.fail()) {
+        cin.clear(); // clear error flag
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
+        cout << "Invalid input. Please enter a valid number.\n";
+        return;
+    }
+
+    cin.ignore(); // clear leftover newline
 
     if (choice == 1) {
         string user, note;
         cout << "Enter username: ";
         getline(cin, user);
+        if (user.empty()) {
+            cout << "Invalid input. Username cannot be empty.\n";
+            return;
+        }
+
         cout << "Enter care note: ";
         getline(cin, note);
+        if (note.empty()) {
+            cout << "Invalid input. Care note cannot be empty.\n";
+            return;
+        }
 
         ofstream out("care_notes.txt", ios::app);
+        if (!out) {
+            cout << "Error: Unable to write to care_notes.txt\n";
+            return;
+        }
+
         out << user << "," << note << endl;
         out.close();
         cout << "Note added.\n";
-    } else if (choice == 2) {
+    } 
+    else if (choice == 2) {
         ifstream file("care_notes.txt");
+        if (!file) {
+            cout << "No care notes found.\n";
+            return;
+        }
+
         string line;
         cout << "\nUsername\t\tNote\n";
         cout << "----------------------------------------\n";
@@ -492,10 +673,12 @@ void managePatientCareNotes() {
             cout << user << "\t\t" << note << endl;
         }
         file.close();
-    } else {
+    } 
+    else {
         cout << "Invalid option.\n";
     }
 }
+
 void viewDoctorAppointments() {
     cout << "\n--- View Appointments Booked ---\n";
     ifstream file("appointments.txt");

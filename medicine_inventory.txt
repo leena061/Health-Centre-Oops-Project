@@ -1,2 +1,3 @@
-De-cold|17|5.5
+phenol|2|200
 Paracetamol|50|0
+De-cold|17|5.5
