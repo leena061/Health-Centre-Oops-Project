@@ -3,7 +3,12 @@
 #include <fstream>
 #include <sstream>
 #include <limits>
+#include <algorithm> 
 using namespace std;
+
+bool isValidString(const string& input) {
+    return !input.empty() && any_of(input.begin(), input.end(), [](char c){ return !isspace(c); });
+}
 
 Pharmacy::Pharmacy() {
     loadInventory();
@@ -76,10 +81,24 @@ void uploadPrescription(const string& username) {
 
     cout << "\nEnter Doctor Name: ";
     getline(cin, doctor);
+    if (!isValidString(doctor)) {
+        cout << "Invalid input. Doctor name cannot be blank.\n";
+        return;
+    }
+
     cout << "Enter Medicine Name: ";
     getline(cin, medicine);
+    if (!isValidString(medicine)) {
+        cout << "Invalid input. Medicine name cannot be blank.\n";
+        return;
+    }
+
     cout << "Enter Dosage Instructions: ";
     getline(cin, dosage);
+    if (!isValidString(dosage)) {
+        cout << "Invalid input. Dosage instructions cannot be blank.\n";
+        return;
+    }
 
     file << username << "|" << doctor << "|" << medicine << "|" << dosage << endl;
     file.close();
@@ -93,7 +112,6 @@ bool authenticateStaff() {
     getline(cin, staffPassword);
     return staffPassword == "admin123";
 }
-
 
 int getValidatedInt(const string& prompt) {
     int value;
@@ -136,12 +154,11 @@ void pharmacyMenu(const string& username, const string& role) {
         cout << "2. Order Medicine" << endl;
         cout << "3. Upload Prescription" << endl;
         cout << "4. Display Inventory" << endl;
-        
-        // Show "Update Inventory" option only if the user is a staff member
+
         if (role == "HealthCentreStaff") {
             cout << "5. Update Inventory (Staff Only)" << endl;
         }
-        
+
         cout << "0. Exit" << endl;
         cout << "======================================" << endl;
 
@@ -155,11 +172,19 @@ void pharmacyMenu(const string& username, const string& role) {
             case 1:
                 cout << "\nEnter medicine name: ";
                 getline(cin, medicine);
+                if (!isValidString(medicine)) {
+                    cout << "Invalid input. Medicine name cannot be blank.\n";
+                    break;
+                }
                 pharmacy.checkAvailability(medicine);
                 break;
             case 2:
                 cout << "\nEnter medicine name: ";
                 getline(cin, medicine);
+                if (!isValidString(medicine)) {
+                    cout << "Invalid input. Medicine name cannot be blank.\n";
+                    break;
+                }
                 quantity = getValidatedInt("Enter quantity: ");
                 pharmacy.orderMedicine(medicine, quantity);
                 break;
@@ -170,12 +195,14 @@ void pharmacyMenu(const string& username, const string& role) {
                 pharmacy.displayInventory();
                 break;
             case 5:
-                // Check if the user is staff
                 if (role == "HealthCentreStaff") {
-                    // Authenticate staff using a password
                     if (authenticateStaff()) {
                         cout << "\nEnter medicine name: ";
                         getline(cin, medicine);
+                        if (!isValidString(medicine)) {
+                            cout << "Invalid input. Medicine name cannot be blank.\n";
+                            break;
+                        }
                         quantity = getValidatedInt("Enter new quantity: ");
                         price = getValidatedDouble("Enter new price: ");
                         pharmacy.updateInventory(medicine, quantity, price);
