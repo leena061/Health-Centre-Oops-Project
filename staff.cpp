@@ -505,10 +505,19 @@ void manageLeaveRequests() {
     }
 }
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <limits>
+#include <algorithm>
+
+using namespace std;
+
 void manageEmergencyContacts() {
     int choice;
     cout << "\n--- Manage Emergency Contacts ---\n";
-    cout << "1. Add Contact\n2. View Contacts\n3. Remove Contact\n4.Back\nEnter choice: ";
+    cout << "1. Add Contact\n2. View Contacts\n3. Remove Contact\n4. Back\nEnter choice: ";
     cin >> choice;
 
     if (cin.fail()) {
@@ -518,27 +527,24 @@ void manageEmergencyContacts() {
         return;
     }
 
-    cin.ignore(); // ignore leftover newline from cin
+    cin.ignore(); // clear the newline after entering choice
 
     if (choice == 1) {
-        string user, contact;
-        cout << "Enter username: ";
-        getline(cin, user);
-        if (user.empty()) {
-            cout << "Invalid input. Username cannot be empty.\n";
+        string name, number;
+        cout << "Enter contact name: ";
+        getline(cin, name);
+
+        if (name.empty()) {
+            cout << "Invalid input. Name cannot be empty.\n";
             return;
         }
 
-        cout << "Enter emergency contact (name and number): ";
-        getline(cin, contact);
-        if (contact.empty()) {
-            cout << "Invalid input. Contact cannot be empty.\n";
-            return;
-        }
+        cout << "Enter 10-digit contact number: ";
+        getline(cin, number);
+        number.erase(remove(number.begin(), number.end(), ' '), number.end());
 
-        // Check if the contact number is exactly 10 digits
-        if (contact.length() != 10 || !all_of(contact.begin(), contact.end(), ::isdigit)) {
-            cout << "Invalid input. Contact must be a 10-digit number.\n";
+        if (number.length() != 10 || !all_of(number.begin(), number.end(), ::isdigit)) {
+            cout << "Invalid input. Contact number must be a 10-digit number.\n";
             return;
         }
 
@@ -548,9 +554,9 @@ void manageEmergencyContacts() {
             return;
         }
 
-        file << user << "," << contact << endl;
+        file << name << "," << number << endl;
         file.close();
-        cout << "Contact added.\n";
+        cout << "Contact added successfully.\n";
 
     } else if (choice == 2) {
         ifstream file("emergency_contacts.txt");
@@ -560,30 +566,30 @@ void manageEmergencyContacts() {
         }
 
         string line;
-        cout << "\nUsername\t\tContact\n";
-        cout << "-----------------------------------\n";
+        cout << "\nName\t\tContact Number\n";
+        cout << "-------------------------------\n";
         while (getline(file, line)) {
             stringstream ss(line);
-            string user, contact;
-            getline(ss, user, ',');
-            getline(ss, contact, ',');
-
-            cout << user << "\t\t" << contact << endl;
+            string name, number;
+            getline(ss, name, ',');
+            getline(ss, number);
+            cout << name << "\t\t" << number << endl;
         }
         file.close();
 
     } else if (choice == 3) {
-        string username;
-        cout << "Enter username to remove contact: ";
-        getline(cin, username);
+        string nameToRemove;
+        cout << "Enter contact name to remove: ";
+        getline(cin, nameToRemove);
 
-        if (username.empty()) {
-            cout << "Invalid input. Username cannot be empty.\n";
+        if (nameToRemove.empty()) {
+            cout << "Invalid input. Name cannot be empty.\n";
             return;
         }
 
         ifstream file("emergency_contacts.txt");
         ofstream temp("temp.txt");
+
         if (!file || !temp) {
             cout << "Error: Unable to access contact files.\n";
             return;
@@ -593,7 +599,7 @@ void manageEmergencyContacts() {
         bool found = false;
 
         while (getline(file, line)) {
-            if (line.substr(0, line.find(',')) != username) {
+            if (line.substr(0, line.find(',')) != nameToRemove) {
                 temp << line << endl;
             } else {
                 found = true;
@@ -606,14 +612,17 @@ void manageEmergencyContacts() {
         rename("temp.txt", "emergency_contacts.txt");
 
         if (found)
-            cout << "Contact removed.\n";
+            cout << "Contact removed successfully.\n";
         else
-            cout << "Username not found.\n";
+            cout << "Contact name not found.\n";
 
+    } else if (choice == 4) {
+        return;
     } else {
         cout << "Invalid option.\n";
     }
 }
+
 
 void managePatientCareNotes() {
     int choice;
